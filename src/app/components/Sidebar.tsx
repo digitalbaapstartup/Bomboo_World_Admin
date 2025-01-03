@@ -15,17 +15,23 @@ const Sidebar: React.FC = () => {
       <nav>
         <ul className="space-y-4">
           <li>
+            <button onClick={() => router.push('/admin-login') }
+              className="text-white hover:text-gray-300 transition-colors">
+                Admin Login
+            </button>
+          </li>
+          <li>
             <button
               onClick={() => router.push('/patient-enquiry') }
               className="text-white hover:text-gray-300 transition-colors"
             >
-             All User
+              All User
             </button>
           </li>
       
           <li>
             <button
-                     onClick={() => router.push('/Add-Doctor') }
+              onClick={() => router.push('/Add-Product') }
               className="text-white hover:text-gray-300 transition-colors"
             >
               Add Product  

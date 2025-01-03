@@ -2,59 +2,52 @@
 
 import React, { useState, ChangeEvent, FormEvent, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from "react-redux";
-import { createDoctor, getAllCategories } from '../GlobalRedux/slice/AuthSlice';
+import { AddProducts, getAllCategories } from '@/app/GlobalRedux/slice/AuthSlice';
 import { useRouter } from "next/navigation";
-import { isValidPassword,isValidPhone,isEmail } from '../Helpers/regexMatcher';
 import { toast } from "react-hot-toast";
 import { AppDispatch } from "../GlobalRedux/store";
 import { ChevronDown, ChevronUp } from 'lucide-react';
+import DashboardLayout from '../dashboard/page';
 
 interface FormData {
-  firstName: string;
-  phoneNumber: string;
-  email: string;
-  address: string;
-  specialization: string;
-  fees: string;
-  pincode: string;
-  password: string;
-  confirmPassword: string;
+  name: string;
+  description: string;
+  price: string;
+  stock: string;
+  category: string;
+  // subCategory: string;
+  specifications: string;
 }
 
 interface Errors {
-  firstName?: string;
-  phoneNumber?: string;
-  email?: string;
-  address?: string;
-  specialization?: string;
-  fees?: string;
-  pincode?: string;
-  password?: string;
-  confirmPassword?: string;
+  name?: string;
+  description?: string;
+  price?: string;
+  stock?: string;
+  category?: string;
 }
 
-export default function AddDoctor() {
+export default function AddProduct() {
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
 
   const [formData, setFormData] = useState<FormData>({
-    firstName: '',
-    phoneNumber: '',
-    email: '',
-    address: '',
-    specialization: '',
-    fees: '',
-    pincode: '',
-    password: '',
-    confirmPassword: '',
+    name: '',
+    description: '',
+    price: '',
+    stock: '',
+    category: '',
+    specifications: ''
   });
 
-  const [avatars, setAvatars] = useState<File[]>([]);
+  const [images, setImages] = useState<File[]>([]);
   const [errors, setErrors] = useState<Errors>({});
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length <= 3) {
-      setAvatars(Array.from(e.target.files));
+    if (e.target.files) {
+      setImages(Array.from(e.target.files));
     }
   };
 
@@ -67,37 +60,21 @@ export default function AddDoctor() {
 
   const validate = () => {
     const newErrors: Errors = {};
-    const nameRegex = /^[A-Za-z\s]+$/;
-    const phoneRegex = /^[0-9]{10}$/;
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const pincodeRegex = /^[0-9]{6}$/;
 
-    if (!formData.firstName || formData.firstName.length < 2 || !nameRegex.test(formData.firstName)) {
-      newErrors.firstName = 'First name must be at least 2 characters and contain only letters.';
+    if (!formData.name || formData.name.trim().length < 2) {
+      newErrors.name = 'Product name must be at least 2 characters.';
     }
-    if (!formData.phoneNumber || !phoneRegex.test(formData.phoneNumber)) {
-      newErrors.phoneNumber = 'Phone number must be 10 digits.';
+    if (!formData.description || formData.description.trim().length < 10) {
+      newErrors.description = 'Description must be at least 10 characters.';
     }
-    if (!formData.email || !isEmail(formData.email)) {
-      newErrors.email = 'Please enter a valid email address.';
+    if (!formData.price || isNaN(Number(formData.price)) || Number(formData.price) <= 0) {
+      newErrors.price = 'Price must be a positive number.';
     }
-    if (!formData.address || formData.address.length < 5) {
-      newErrors.address = 'Address must be at least 5 characters.';
+    if (!formData.stock || isNaN(Number(formData.stock)) || Number(formData.stock) < 0) {
+      newErrors.stock = 'Stock must be a non-negative number.';
     }
-    if (!formData.specialization || formData.specialization.length < 2) {
-      newErrors.specialization = 'Specialization must be at least 2 characters.';
-    }
-    if (!formData.fees || isNaN(Number(formData.fees)) || Number(formData.fees) <= 0) {
-      newErrors.fees = 'Fees must be a positive number.';
-    }
-    if (!formData.pincode || !pincodeRegex.test(formData.pincode)) {
-      newErrors.pincode = 'Pincode must be 6 digits.';
-    }
-    if (!formData.password || !isValidPassword(formData.password)) {
-      newErrors.password = 'Password should be 6 - 16 characters long with at least a number and special character.';
-    }
-    if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match.';
+    if (!formData.category) {
+      newErrors.category = 'Please select a category.';
     }
 
     setErrors(newErrors);
@@ -107,66 +84,75 @@ export default function AddDoctor() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (validate()) {
-      const registerData = {
-        // This seems to be a fixed value based on your patient registration
-        fullName: formData.firstName,
-        email: formData.email,
-        password: formData.password,
-        mobileNumber: formData.phoneNumber,
-        address: formData.address,
-        specialist: formData.specialization,
-        description:'hello doctor',
-        fees: formData.fees,
-        pincode: formData.pincode,
-        avatar: avatars.length > 0 ? avatars[0] : null,
-      };
+      const formDataToSend = new FormData();
+      
+      // Append basic form data
+      formDataToSend.append('name', formData.name);
+      formDataToSend.append('description', formData.description);
+      formDataToSend.append('price', formData.price);
+      formDataToSend.append('stock', formData.stock);
+      formDataToSend.append('category', formData.category._id);
+      
+      // if (formData.subCategory) {
+      //   formDataToSend.append('subCategory', formData.subCategory);
+      // }
+      
+      if (formData.specifications) {
+        formDataToSend.append('specifications', formData.specifications);
+      }
+
+      // Append images
+      images.forEach((image, index) => {
+        formDataToSend.append(`files`, image);
+      });
 
       try {
-        const response = await dispatch(createDoctor(registerData));
+        const response = await dispatch(AddProducts(formData));
+
         console.log(response)
+        
         if (response?.payload?.success) {
-         
+          toast.success("Product added successfully!");
           setFormData({
-            firstName: '',
-            phoneNumber: '',
-            email: '',
-            address: '',
-            specialization: '',
-            fees: '',
-            pincode: '',
-            password: '',
-            confirmPassword: '',
-            
-          })
-          setAvatars([])
-          
+            name: '',
+            description: '',
+            price: '',
+            stock: '',
+            category: '',
+            subCategory: '',
+            specifications: ''
+          });
+          setImages([]);
+        } else {
+          toast.error(response?.payload?.message || "Failed to add product");
         }
       } catch (error) {
-        console.error("Doctor registration error:", error);
-        toast.error("An error occurred during registration");
+        console.error("Product addition error:", error);
+        toast.error("An error occurred while adding the product");
       }
     } else {
       toast.error("Please correct the errors in the form.");
     }
   };
 
-  const [isOpen, setIsOpen] = useState(false);
-  const dropdownRef = useRef(null);
+  const { categories, loading } = useSelector((state: any) => state.auth);
 
-  const categories1 = [
-    "Hospitality",
-    "Electronics",
-    "Kitchen",
-    "Clothing",
-    "Corporate Gifting",
-    "Personal Care",
-    "Furniture",
-    "Educational"
-  ];
+  const handleCategorySelect = (categoryId: string) => {
+    console.log(categoryId)
+    setFormData({
+      ...formData,
+      category: categoryId,
+    });
+    setIsOpen(false);
+  };
 
   useEffect(() => {
-    const handleClickOutside = (event:any) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+    dispatch(getAllCategories());
+  }, [dispatch]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsOpen(false);
       }
     };
@@ -177,155 +163,141 @@ export default function AddDoctor() {
     };
   }, []);
 
- // Add selector for categories
- const { categories, loading } = useSelector((state: any) => state.auth);
-
-  const handleCategorySelect = (category: string) => {
-    handleChange({
-      target: {
-        name: 'specialization',
-        value: category
-      }
-    } as ChangeEvent<HTMLInputElement>);
-    setIsOpen(false);
-  };
-
-  useEffect(() => {
-    dispatch(getAllCategories());
-  }, [dispatch]);
-
-  // console.log(categories)
-
   return (
-    <div className="p-6 bg-white rounded-lg shadow-lg" ref={dropdownRef}>
-      <h2 className="text-2xl font-bold mb-4 text-[#0A8E8A]">Add Product</h2>
-      <form ref={dropdownRef}>
-        <div className="grid grid-cols-2 gap-4 mb-4">
-          <div>
-            <input
-              type="text"
-              name="productname"
-              placeholder="Product Name"
-              className="p-2 border rounded w-full"
-              value={formData.firstName}
-              onChange={handleChange}
-            />
-            {errors.firstName && <p className="text-red-500 text-sm">{errors.firstName}</p>}
-          </div>
-          <div>
-            <input
-              type="text"
-              name="description"
-              placeholder="Product Description"
-              className="p-2 border rounded w-full"
-              value={formData.phoneNumber}
-              onChange={handleChange}
-            />
-            {errors.phoneNumber && <p className="text-red-500 text-sm">{errors.phoneNumber}</p>}
-          </div>
-          <div>
-            <input
-              type="email"
-              name="price"
-              placeholder="Price"
-              className="p-2 border rounded w-full"
-              value={formData.email}
-              onChange={handleChange}
-            />
-            {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
-          </div>
-          <div>
-            <input
-              type="text"
-              name="stock"
-              placeholder="Stock"
-              className="p-2 border rounded w-full"
-              value={formData.address}
-              onChange={handleChange}
-            />
-            {errors.address && <p className="text-red-500 text-sm">{errors.address}</p>}
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4 mb-4">
-          <div className="relative">
-            <div
-              className="p-2 border rounded w-full flex justify-between items-center cursor-pointer bg-white"
-              onClick={() => setIsOpen(!isOpen)}
-            >
-              <span className={`${!formData.specialization && 'text-gray-400'}`}>
-                {formData.specialization || 'Category'}
-              </span>
-              {isOpen ? (
-                <ChevronUp className="h-4 w-4 text-gray-500" />
-              ) : (
-                <ChevronDown className="h-4 w-4 text-gray-500" />
-              )}
+    <DashboardLayout>
+      <div className="p-6 bg-white rounded-lg shadow-lg" ref={dropdownRef}>
+        <h2 className="text-2xl font-bold mb-4 text-[#0A8E8A]">Add Product</h2>
+        <form onSubmit={handleSubmit}>
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <div>
+              <input
+                type="text"
+                name="name"
+                placeholder="Product Name"
+                className="p-2 border rounded w-full"
+                value={formData.name}
+                onChange={handleChange}
+              />
+              {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
             </div>
-            
-            {isOpen && (
-              <div className="absolute z-10 w-full mt-1 bg-white border rounded-md shadow-lg">
-                <ul className="py-1 max-h-60 overflow-auto">
-                  {loading ? (
-                    <li className="px-4 py-2 text-gray-500">Loading categories...</li>
-                  ) : categories && categories.length > 0 ? (
-                    categories.map((category: any) => (
-                      <li
-                        key={category._id}
-                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                        onClick={() => handleCategorySelect(category?.name)}
-                      >
-                        {category.name}
-                      </li>
-                    ))
-                  ) : (
-                    <li className="px-4 py-2 text-gray-500">No categories available</li>
-                  )}
-                </ul>
-              </div>
-            )}
+            <div>
+              <input
+                type="text"
+                name="description"
+                placeholder="Product Description"
+                className="p-2 border rounded w-full"
+                value={formData.description}
+                onChange={handleChange}
+              />
+              {errors.description && <p className="text-red-500 text-sm">{errors.description}</p>}
+            </div>
+            <div>
+              <input
+                type="number"
+                name="price"
+                placeholder="Price"
+                className="p-2 border rounded w-full"
+                value={formData.price}
+                onChange={handleChange}
+              />
+              {errors.price && <p className="text-red-500 text-sm">{errors.price}</p>}
+            </div>
+            <div>
+              <input
+                type="number"
+                name="stock"
+                placeholder="Stock"
+                className="p-2 border rounded w-full"
+                value={formData.stock}
+                onChange={handleChange}
+              />
+              {errors.stock && <p className="text-red-500 text-sm">{errors.stock}</p>}
+            </div>
           </div>
-          <div>
-            <input
-              type="text"
-              name="subcategory"
-              placeholder="Sub Category"
-              className="p-2 border rounded w-full"
-              value={formData.fees}
-              onChange={handleChange}
-            />
-            {errors.fees && <p className="text-red-500 text-sm">{errors.fees}</p>}
-          </div>
-        </div>
 
-        <div className="grid grid-cols-2 gap-4 mb-4">
-          <div>
-            <input
-              type="text"
-              name="specification"
-              placeholder="Specification"
-              className="p-2 border rounded w-full"
-              value={formData.pincode}
-              onChange={handleChange}
-            />
-            {errors.pincode && <p className="text-red-500 text-sm">{errors.pincode}</p>}
-          </div>
-        </div>
-
-        <div className="mb-4">
-          <h3 className="text-lg font-bold">Avatar Upload</h3>
-          <input
-            type="file"
-            onChange={handleFileChange}
-            className="p-2 border rounded w-full"
-            multiple
-          />
-        </div>
-
-        <button type="submit" className="bg-[#0A8E8A] text-white p-2 rounded" onClick={handleSubmit}>
-          Add Product
-        </button>
-      </form>
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <div className="relative">
+            <div
+    className="p-2 border rounded w-full flex justify-between items-center cursor-pointer bg-white"
+    onClick={() => setIsOpen(!isOpen)}
+  >
+    <span className={`${!formData.category ? 'text-gray-400' : ''}`}>
+      {formData.category ? 
+        categories.find((cat: any) => cat._id === formData.category)?.name : 
+        'Select a category'}
+    </span>
+    {isOpen ? (
+      <ChevronUp className="h-4 w-4 text-gray-500" />
+    ) : (
+      <ChevronDown className="h-4 w-4 text-gray-500" />
+    )}
+  </div>
+              
+              {isOpen && (
+    <div className="absolute z-10 w-full mt-1 bg-white border rounded-md shadow-lg">
+      <ul className="py-1 max-h-60 overflow-auto">
+        {loading ? (
+          <li className="px-4 py-2 text-gray-500">Loading categories...</li>
+        ) : categories && categories.length > 0 ? (
+          categories.map((category: any) => (
+            <li
+              key={category._id}
+              className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+              onClick={() => handleCategorySelect(category._id)}
+            >
+              {category.name}
+            </li>
+          ))
+        ) : (
+          <li className="px-4 py-2 text-gray-500">No categories available</li>
+        )}
+      </ul>
     </div>
+  )}
+            </div>
+            <div>
+              <input
+                type="text"
+                name="subCategory"
+                placeholder="Sub Category"
+                className="p-2 border rounded w-full"
+                value={formData.subCategory}
+                onChange={handleChange}
+              />
+            </div>
+          </div>
+
+          <div className="mb-4">
+            <input
+              type="text"
+              name="specifications"
+              placeholder="Specifications (comma-separated)"
+              className="p-2 border rounded w-full"
+              value={formData.specifications}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="mb-4">
+            <h3 className="text-lg font-bold mb-2">Product Images</h3>
+            <input
+              type="file"
+              onChange={handleFileChange}
+              className="p-2 border rounded w-full"
+              multiple
+              accept="image/*"
+            />
+            <p className="text-sm text-gray-500 mt-1">You can upload multiple images</p>
+          </div>
+
+          <button 
+            type="submit" 
+            className="bg-[#0A8E8A] text-white p-2 rounded hover:bg-[#097a77] transition-colors"
+          >
+            Add Product
+          </button>
+        </form>
+      </div>
+    </DashboardLayout>
   );
 }

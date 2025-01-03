@@ -28,7 +28,8 @@ const initialState: UserState = {
   doctors: {},
   categories: [],
   loading: false,
-  error: null
+  error: null,
+  products: []
 };
 
 export const createDoctor = createAsyncThunk(
@@ -61,7 +62,7 @@ export const getAllCategories = createAsyncThunk(
   async () => {
     try {
       const res = axiosInstance.get("admin/allCategory");
-      console.log("res ,", res)
+      // console.log("res ,", res)
       toast.promise(res, {
         loading: "Fetching categories...",
         success: (data) => "Categories fetched successfully",
@@ -76,28 +77,54 @@ export const getAllCategories = createAsyncThunk(
   }
 );
 
-export const allDoctors = createAsyncThunk("doctor/allDoctors", async () => {
-  try {
-    const res = axiosInstance.get("doctor/allDoctors", {
-      withCredentials: true,
-    });
+export const AddProducts = createAsyncThunk(
+  "admin/addProduct",
+  async (data) => {
+    try {
+      // console.log("product data:", data);
+      const res = axiosInstance.post("admin/addProduct", data);
+      // console.log("response:",res)
+        if(res?.data?.success){
+          toast.success("Product added successfully");
+        }
+        return res;
+        } catch (error: any) {
+          toast.error("Failed to add product");
+        }
+    }
+)
 
-    toast.promise(res, {
-      loading: "Wait! fetching doctors",
-      success: (data) => data?.data?.message,
-      error: "Failed to fetch doctors",
-    });
-
-    // Extract the token from the response
-    const response = await res;
-
-    return response.data;
-  } catch (error: any) {
-    throw error;
-  } finally {
-    console.log("finally");
+export const getAllProduct = createAsyncThunk(
+  "admin/getAllProduct",
+  async () => {
+    try {
+      const res = axiosInstance.get("admin/allProducts");
+      console.log("products data getting: ", res)
+      if(res?.data?.success){
+        toast.success("Products fetched successfully");
+      }
+      return res;
+      } catch (error: any) {
+        toast.error("Failed to fetch products");
+      }
   }
-});
+)
+
+export const AdminLogin = createAsyncThunk(
+  "admin/adminLogin",
+  async (data: any, { rejectWithValue }) => {
+    try {
+      const res = await axiosInstance.post("auth/login", data);
+      console.log("res", res);
+      if(res.data.success){
+        toast.success("Login Success")
+      }
+        return res.data;
+        } catch (error: any) {
+          return rejectWithValue(error.response.data);
+        }
+   }  
+)
 
 export const allPatientEnquiry = createAsyncThunk(
   "admin/allPatientEnquiry",
@@ -134,9 +161,6 @@ const authSlice = createSlice({
       .addCase(createDoctor.fulfilled, (state, action: PayloadAction<any>) => {
         state.data = action?.payload?.data;
       })
-      .addCase(allDoctors.fulfilled, (state, action: PayloadAction<any>) => {
-        state.doctors = action?.payload?.data;
-      })
       .addCase(getAllCategories.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -149,7 +173,12 @@ const authSlice = createSlice({
       .addCase(getAllCategories.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Failed to fetch categories';
-      });
+      })
+      .addCase(AddProducts.fulfilled, (state, action: PayloadAction<any>) => {
+        state.loading = false;
+        state.products = action.payload.data;
+        state.error = null;
+      })
   },
 });
 

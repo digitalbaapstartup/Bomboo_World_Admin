@@ -4,6 +4,7 @@ import { useDispatch } from "react-redux";
 import { AppDispatch } from "../GlobalRedux/store";
 import { allDoctors } from "../GlobalRedux/slice/AuthSlice";
 import toast from "react-hot-toast";
+import DashboardLayout from "../dashboard/page";
 
 interface Doctor {
   id: number;
@@ -38,7 +39,8 @@ export default function DoctorList() {
   }, [dispatch]);
 
   return (
-    <div className="p-6 bg-white rounded-lg shadow-lg">
+    <DashboardLayout>
+      <div className="p-6 bg-white rounded-lg shadow-lg">
       <h2 className="text-2xl font-bold mb-4 text-[#0A8E8A]">Product List</h2>
       <table className="min-w-full bg-white border border-gray-200 mb-4">
         <thead>
@@ -78,5 +80,6 @@ export default function DoctorList() {
       </table>
  
     </div>
+    </DashboardLayout>
   );
 }
