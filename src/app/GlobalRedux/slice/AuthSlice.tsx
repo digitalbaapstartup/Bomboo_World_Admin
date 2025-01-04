@@ -8,6 +8,7 @@ interface UserState {
   categories: Array<any>;
   loading: boolean;
   error: string | null;
+  products: any;
 }
 
 interface RegisterData {
@@ -62,12 +63,7 @@ export const getAllCategories = createAsyncThunk(
   async () => {
     try {
       const res = axiosInstance.get("admin/allCategory");
-      // console.log("res ,", res)
-      toast.promise(res, {
-        loading: "Fetching categories...",
-        success: (data) => "Categories fetched successfully",
-        error: "Failed to fetch categories",
-      });
+      console.log("res ,", res)
 
       const response = await res;
       return response.data;
@@ -84,31 +80,33 @@ export const AddProducts = createAsyncThunk(
       // console.log("product data:", data);
       const res = axiosInstance.post("admin/addProduct", data);
       // console.log("response:",res)
-        if(res?.data?.success){
-          toast.success("Product added successfully");
-        }
-        return res;
-        } catch (error: any) {
-          toast.error("Failed to add product");
-        }
+      if (res?.data?.success) {
+        toast.success("Product added successfully");
+      }
+      return res;
+    } catch (error: any) {
+      toast.error("Failed to add product");
     }
+  }
 )
 
 export const getAllProduct = createAsyncThunk(
   "admin/getAllProduct",
   async () => {
     try {
-      const res = axiosInstance.get("admin/allProducts");
-      console.log("products data getting: ", res)
-      if(res?.data?.success){
+      const res = await axiosInstance.get("admin/allProducts");
+      if (res?.data?.success) {
         toast.success("Products fetched successfully");
       }
-      return res;
-      } catch (error: any) {
-        toast.error("Failed to fetch products");
-      }
+      // Return the nested products data
+      return res.data;
+    } catch (error: any) {
+      toast.error("Failed to fetch products");
+      throw error;
+    }
   }
-)
+);
+
 
 export const AdminLogin = createAsyncThunk(
   "admin/adminLogin",
@@ -116,14 +114,14 @@ export const AdminLogin = createAsyncThunk(
     try {
       const res = await axiosInstance.post("auth/login", data);
       console.log("res", res);
-      if(res.data.success){
+      if (res.data.success) {
         toast.success("Login Success")
       }
-        return res.data;
-        } catch (error: any) {
-          return rejectWithValue(error.response.data);
-        }
-   }  
+      return res.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response.data);
+    }
+  }
 )
 
 export const allPatientEnquiry = createAsyncThunk(
@@ -174,10 +172,20 @@ const authSlice = createSlice({
         state.loading = false;
         state.error = action.error.message || 'Failed to fetch categories';
       })
-      .addCase(AddProducts.fulfilled, (state, action: PayloadAction<any>) => {
-        state.loading = false;
-        state.products = action.payload.data;
+      .addCase(getAllProduct.pending, (state) => {
+        state.loading = true;
         state.error = null;
+      })
+      .addCase(getAllProduct.fulfilled, (state, action: PayloadAction<any>) => {
+        state.loading = false;
+        // Access the products array from the nested data structure
+        state.products = action.payload.data.products || [];
+        state.error = null;
+      })
+      .addCase(getAllProduct.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Failed to fetch products';
+        state.products = [];
       })
   },
 });
