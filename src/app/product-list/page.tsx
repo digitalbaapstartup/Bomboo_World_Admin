@@ -2,11 +2,11 @@
 import React from 'react';
 
 import Sidebar from '../components/Sidebar';
-import DoctorList from '../components/ProductList';
+import ProductList from '../components/ProductList';
 
 const Page: React.FC = () => {
   return (
-    <DoctorList/>
+    <ProductList/>
   );
 };
 
