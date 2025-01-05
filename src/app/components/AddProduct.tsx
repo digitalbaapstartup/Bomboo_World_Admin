@@ -71,12 +71,11 @@ export default function AddProduct() {
     setImages(prevImages => [...prevImages, ...newFiles]);
   };
 
-  // Add function to handle image removal
   const handleRemoveImage = (index: number) => {
     setImages(prevImages => prevImages.filter((_, i) => i !== index));
   };
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
@@ -104,9 +103,6 @@ export default function AddProduct() {
     if (images.length === 0) {
       newErrors.images = 'Please upload at least one image.';
     }
-    if (images.length > 4) {
-      newErrors.images = 'Maximum 4 images allowed.';
-    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -118,32 +114,20 @@ export default function AddProduct() {
       const formDataToSend = new FormData();
       
       // Append basic form data
-      formDataToSend.append('name', formData.name);
-      formDataToSend.append('description', formData.description);
-      formDataToSend.append('price', formData.price);
-      formDataToSend.append('stock', formData.stock);
-      formDataToSend.append('category', formData.category);
-      
-      if (formData.specifications) {
-        formDataToSend.append('specifications', formData.specifications);
-      }
+      Object.keys(formData).forEach(key => {
+        formDataToSend.append(key, formData[key as keyof FormData]);
+      });
 
-      // Append images with correct naming
+      // Append images
       images.forEach((image, index) => {
-        formDataToSend.append('images', image);
+        formDataToSend.append(`images`, image);
       });
 
       try {
-        // Log FormData contents for debugging
-        for (let pair of formDataToSend.entries()) {
-          console.log(pair[0], pair[1]);
-        }
-
-        const response = await dispatch(AddProducts(formDataToSend)); // Send formDataToSend instead of formData
-
-        console.log('Response:', response);
+        // Send formDataToSend instead of formData
+        const response = await dispatch(AddProducts(formDataToSend));
         
-        if (response?.payload) {
+        if (response.payload && !response.payload.error) {
           toast.success("Product added successfully!");
           setFormData({
             name: '',
@@ -154,7 +138,9 @@ export default function AddProduct() {
             specifications: ''
           });
           setImages([]);
-          router.push("/product-list")
+          router.push("/product-list");
+        } else {
+          toast.error(response.payload?.message || "Failed to add product");
         }
       } catch (error) {
         console.error("Product addition error:", error);
@@ -168,7 +154,6 @@ export default function AddProduct() {
   const { categories, loading } = useSelector((state: any) => state.auth);
 
   const handleCategorySelect = (categoryId: string) => {
-    console.log(categoryId)
     setFormData({
       ...formData,
       category: categoryId,
@@ -182,7 +167,7 @@ export default function AddProduct() {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (dropdownRef.current && !(dropdownRef.current as any).contains(event.target)) {
         setIsOpen(false);
       }
     };

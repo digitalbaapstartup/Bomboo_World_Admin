@@ -91,9 +91,12 @@ export const AddProducts = createAsyncThunk(
   async (data) => {
     try {
       // console.log("product data:", data);
-      const res = axiosInstance.post("admin/addProduct", data);
-      // console.log("response:",res)
-      return res;
+      const response = await axiosInstance.post('/admin/addProduct', data, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data;
     } catch (error: any) {
       toast.error("Failed to add product");
     }
