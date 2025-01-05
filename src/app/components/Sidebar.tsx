@@ -39,7 +39,7 @@ const Sidebar: React.FC = () => {
           </li>
           <li>
             <button
-              onClick={() => router.push('/doctors')}
+              onClick={() => router.push('/product-list')}
               className="text-white hover:text-gray-300 transition-colors"
             >
               Product List

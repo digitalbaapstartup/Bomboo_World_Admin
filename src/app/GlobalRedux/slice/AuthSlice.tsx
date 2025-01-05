@@ -73,6 +73,19 @@ export const getAllCategories = createAsyncThunk(
   }
 );
 
+export const deleteProduct = createAsyncThunk(
+  "admin/deleteProduct",
+  async (productId: string, { rejectWithValue }) => {
+    try {
+      const res = await axiosInstance.delete(`admin/deleteProduct/${productId}`);
+      return res.data;
+    } catch (error: any) {
+      toast.error("Failed to delete product");
+      return rejectWithValue(error.response?.data || "An error occurred");
+    }
+  }
+);
+
 export const AddProducts = createAsyncThunk(
   "admin/addProduct",
   async (data) => {
@@ -80,9 +93,6 @@ export const AddProducts = createAsyncThunk(
       // console.log("product data:", data);
       const res = axiosInstance.post("admin/addProduct", data);
       // console.log("response:",res)
-      // if (res?.data?.success) {
-      //   toast.success("Product added successfully");
-      // }
       return res;
     } catch (error: any) {
       toast.error("Failed to add product");
@@ -90,14 +100,28 @@ export const AddProducts = createAsyncThunk(
   }
 )
 
+export const updateProduct = createAsyncThunk(
+  "admin/updateProduct",
+  async ( data , { rejectWithValue }) => {
+    console.log("data: ", data)
+    try {
+      const res = await axiosInstance.put(`admin/updateProduct/${data[0]}`, data[1]);
+      if (res.data.success) {
+        toast.success("Product updated successfully");
+      }
+      return res.data;
+    } catch (error: any) {
+      toast.error("Failed to update product");
+      return rejectWithValue(error.response?.data || "An error occurred");
+    }
+  }
+);
+
 export const getAllProduct = createAsyncThunk(
   "admin/getAllProduct",
   async () => {
     try {
       const res = await axiosInstance.get("admin/allProducts");
-      if (res?.data?.success) {
-        toast.success("Products fetched successfully");
-      }
       // Return the nested products data
       return res.data;
     } catch (error: any) {
@@ -187,6 +211,21 @@ const authSlice = createSlice({
         state.error = action.error.message || 'Failed to fetch products';
         state.products = [];
       })
+      // updateProduct
+      .addCase(updateProduct.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateProduct.fulfilled, (state, action: PayloadAction<any>) => {
+        state.loading = false;
+        toast.success("Product updated successfully");
+        // Optionally update state.products if necessary
+        state.error = null;
+      })
+      .addCase(updateProduct.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || "Failed to update product";
+      });
   },
 });
 
