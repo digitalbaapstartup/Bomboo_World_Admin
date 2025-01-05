@@ -48,7 +48,7 @@ export default function ProductList() {
   return (
     <DashboardLayout>
       <div className="p-6 bg-white rounded-lg shadow-lg">
-        <h2 className="text-2xl font-bold mb-4 text-[#0A8E8A]">Product List</h2>
+        <h2 className="text-2xl font-bold mb-4 text-green-700">Product List</h2>
         <table className="min-w-full bg-white border border-gray-200 mb-4">
           <thead>
             <tr>

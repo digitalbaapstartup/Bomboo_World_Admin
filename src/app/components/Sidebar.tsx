@@ -9,7 +9,7 @@ import React from 'react';
 const Sidebar: React.FC = () => {
   const router = useRouter()
   return (
-    <aside className="w-64 bg-[#0A8E8A] text-white h-screen p-8">
+    <aside className="bg-green-800 rounded-xl shadow-xl fixed text-white h-screen p-8">
       <h2 className="text-2xl font-bold mb-2">Bomboo World </h2>
       <p className="mb-8 text-gray-200">Admin Panel</p>
       <nav>
@@ -22,7 +22,7 @@ const Sidebar: React.FC = () => {
           </li>
           <li>
             <button
-              onClick={() => router.push('/patient-enquiry') }
+              onClick={() => router.push('/users-enquiry') }
               className="text-white hover:text-gray-300 transition-colors"
             >
               All User

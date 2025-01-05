@@ -181,7 +181,7 @@ export default function AddProduct() {
   return (
     <DashboardLayout>
       <div className="p-6 bg-white rounded-lg shadow-lg" ref={dropdownRef}>
-        <h2 className="text-2xl font-bold mb-4 text-[#0A8E8A]">Add Product</h2>
+        <h2 className="text-2xl font-bold mb-4 text-green-700">Add Product</h2>
         <form onSubmit={handleSubmit}>
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div>
@@ -351,7 +351,7 @@ export default function AddProduct() {
 
           <button 
             type="submit" 
-            className="bg-[#0A8E8A] text-white p-2 rounded hover:bg-[#097a77] transition-colors"
+            className="bg-green-700 text-white p-2 rounded hover:bg-green-600 transition-colors"
           >
             Add Product
           </button>

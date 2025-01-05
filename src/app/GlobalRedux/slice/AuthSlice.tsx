@@ -9,6 +9,7 @@ interface UserState {
   loading: boolean;
   error: string | null;
   products: any;
+  users: any;
 }
 
 interface RegisterData {
@@ -24,13 +25,20 @@ interface RegisterData {
   avatar: File | null;
 }
 
+type UpdateProductPayload = {
+  id: string;
+  formData: FormData;
+};
+
 const initialState: UserState = {
   data: {},
   doctors: {},
   categories: [],
   loading: false,
   error: null,
-  products: []
+  products: [],
+  users: [],
+  
 };
 
 export const createDoctor = createAsyncThunk(
@@ -105,17 +113,43 @@ export const AddProducts = createAsyncThunk(
 
 export const updateProduct = createAsyncThunk(
   "admin/updateProduct",
-  async ( data , { rejectWithValue }) => {
-    console.log("data: ", data)
+  async ({ id, formData }: UpdateProductPayload, { rejectWithValue }) => {
+    const toastId = toast.loading("Updating product...");
     try {
-      const res = await axiosInstance.put(`admin/updateProduct/${data[0]}`, data[1]);
-      if (res.data.success) {
-        toast.success("Product updated successfully");
+
+      // console.log("formData: ", formData)
+      // Validate image files (client-side validation)
+      const images = formData.getAll("images") as File[];
+      const totalSize = images.reduce((acc: number, img) => acc + img.size, 0);
+      const maxSize = 5 * 1024 * 1024; // 5MB total
+
+      if (totalSize > maxSize) {
+        toast.error("Total image size should be less than 5MB", { id: toastId });
+        return rejectWithValue("Image size too large");
       }
-      return res.data;
+
+      // Validate file types
+      const validTypes = ["image/jpg", "image/jpeg", "image/png", "image/webp"];
+      const invalidFile = images.some((img) => !validTypes.includes(img.type));
+
+      if (invalidFile) {
+        toast.error("Only JPEG, JPG, PNG, and WebP images are allowed", { id: toastId });
+        return rejectWithValue("Invalid file type");
+      }
+
+      // Send request to update product
+      const response = await axiosInstance.put(`admin/updateProduct/${id}`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      toast.success("Product updated successfully", { id: toastId });
+      return response.data;
     } catch (error: any) {
-      toast.error("Failed to update product");
-      return rejectWithValue(error.response?.data || "An error occurred");
+      const errorMessage = error.response?.data?.message || "Failed to update product.";
+      toast.error(errorMessage, { id: toastId });
+      return rejectWithValue(errorMessage);
     }
   }
 );
@@ -126,6 +160,7 @@ export const getAllProduct = createAsyncThunk(
     try {
       const res = await axiosInstance.get("admin/allProducts");
       // Return the nested products data
+      console.log("res", res);
       return res.data;
     } catch (error: any) {
       toast.error("Failed to fetch products");
@@ -163,6 +198,32 @@ export const allPatientEnquiry = createAsyncThunk(
         loading: "Fetching enquiries ",
         success: (data) => data?.data?.message,
         error: "Failed to find enquiry ",
+      });
+
+      // Extract the token from the response
+      const response = await res;
+
+      return response.data;
+    } catch (error: any) {
+      throw error;
+    } finally {
+      console.log("finally");
+    }
+  }
+);
+
+export const fetchAllUsers = createAsyncThunk(
+  "admin/fetchAllUsers",
+  async () => {
+    try {
+      const res = axiosInstance.get("admin/allUsers", {
+        withCredentials: true,
+      });
+
+      toast.promise(res, {
+        loading: "Fetching users ",
+        success: (data) => data?.data?.message,
+        error: "Failed to find users ",
       });
 
       // Extract the token from the response
@@ -221,14 +282,34 @@ const authSlice = createSlice({
       })
       .addCase(updateProduct.fulfilled, (state, action: PayloadAction<any>) => {
         state.loading = false;
-        toast.success("Product updated successfully");
-        // Optionally update state.products if necessary
+        // Update the specific product in the products array
+        const updatedProduct = action.payload.data;
+        const productIndex = state.products.findIndex(
+          (product: any) => product._id === updatedProduct._id
+        );
+        if (productIndex !== -1) {
+          state.products[productIndex] = updatedProduct;
+        }
         state.error = null;
       })
       .addCase(updateProduct.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload || "Failed to update product";
-      });
+        state.error = action.payload as string || "Failed to update product";
+      })
+      // fetch users 
+      .addCase(fetchAllUsers.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchAllUsers.fulfilled, (state, action: PayloadAction<any>) => {
+        state.loading = false;
+        state.users = action.payload.data;
+        state.error = null;
+      })
+      .addCase(fetchAllUsers.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Failed to fetch users';
+      })
   },
 });
 

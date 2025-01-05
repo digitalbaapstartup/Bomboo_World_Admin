@@ -8,9 +8,10 @@ import { toast } from "react-hot-toast";
 import { AppDispatch } from "../GlobalRedux/store";
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import DashboardLayout from '../dashboard/page';
+import Image from 'next/image';
 
 interface FormData {
-    // id: string;
+  // id: string;
   name: string;
   description: string;
   price: string;
@@ -18,6 +19,7 @@ interface FormData {
   category: string;
   // subCategory: string;
   specifications: string;
+  images: [];
 }
 
 interface Errors {
@@ -34,7 +36,9 @@ export default function UpdateProduct() {
   const searchParams = useSearchParams();
 
   const productId = searchParams.get("id");
-  console.log("productId: ", productId)
+  // console.log("productId: ", productId)
+
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
 
   const [formData, setFormData] = useState<FormData>({
     // id: productId,
@@ -44,152 +48,131 @@ export default function UpdateProduct() {
     stock: "",
     category: "",
     specifications: "",
+    images: []
   });
 
   useEffect(() => {
     setFormData((prev) => ({ ...prev, id: productId || "" }));
-}, [productId]);
+  }, [productId]);
 
-  console.log("formData id: ", formData)
+  // console.log("formData id: ", formData)
 
   const [images, setImages] = useState<File[]>([]);
   const [errors, setErrors] = useState<Errors>({});
   const [isOpen, setIsOpen] = useState(false);
   const [category, setCategory] = useState<string[]>([]);
   const [filteredProduct, setFilteredProduct] = useState<any | null>(null);
-  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    setFormData((prev) => ({ ...prev, id: productId || "" }));
+  }, [productId]);
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const newFiles = Array.from(e.target.files || []);
-    if (newFiles.length + images.length > 4) {
-        setErrors({ ...errors, images: 'Maximum 4 images allowed.' });
-        toast.error('Maximum 4 images allowed.');
-        return;
+    const files = e.target.files;
+    if (!files) return;
+
+    // Convert FileList to Array
+    const filesArray = Array.from(files);
+
+    // Check if the total number of images exceeds 4
+    if (images.length + filesArray.length > 4) {
+      toast.error("You can only upload up to 4 images");
+      return;
     }
-    setErrors({ ...errors, images: undefined });
-    setImages(newFiles); // Replace instead of append
-};
+
+    // Add the selected images to the state
+    setImages((prev) => [...prev, ...filesArray]);
+
+    // Add the selected images to the form data
+    setFormData((prev) => ({
+      ...prev,
+      images: [...prev.images, ...filesArray],
+    }));
+  }
 
   // Add function to handle image removal
   const handleRemoveImage = (index: number) => {
     setImages((prev) => prev.filter((_, i) => i !== index));
+    setFormData((prev) => ({
+      ...prev,
+      images: prev.images.filter((_, i) => i !== index),
+    }));
   };
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
+  // console.log("images hain: ", images)
 
   const validate = () => {
     const newErrors: Errors = {};
-
-    if (!formData.name || formData.name.trim().length < 2) {
-      newErrors.name = 'Product name must be at least 2 characters.';
-    }
-    if (!formData.description || formData.description.trim().length < 10) {
-      newErrors.description = 'Description must be at least 10 characters.';
-    }
-    if (!formData.price || isNaN(Number(formData.price)) || Number(formData.price) <= 0) {
-      newErrors.price = 'Price must be a positive number.';
-    }
-    if (!formData.stock || isNaN(Number(formData.stock)) || Number(formData.stock) < 0) {
-      newErrors.stock = 'Stock must be a non-negative number.';
-    }
-    if (!formData.category) {
-        newErrors.category = 'Please select a category.';
-      }
-    if (images.length === 0) {
-      newErrors.images = 'Please upload at least one image.';
-    }
-    if (images.length > 4) {
-      newErrors.images = 'Maximum 4 images allowed.';
-    }
-
+    if (!formData.name.trim()) newErrors.name = "Product name is required.";
+    if (!formData.description.trim()) newErrors.description = "Description is required.";
+    if (!formData.price || Number(formData.price) <= 0) newErrors.price = "Price must be positive.";
+    if (!formData.stock || Number(formData.stock) < 0) newErrors.stock = "Stock cannot be negative.";
+    if (!formData.category) newErrors.category = "Category is required.";
+    if (images.length === 0) newErrors.images = "At least one image is required.";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
+  
+  
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (validate()) {
-      const formDataToSend = new FormData();
-      formDataToSend.append('id', productId);
-      formDataToSend.append('name', formData?.name);
-      formDataToSend.append('description', formData.description);
-      formDataToSend.append('price', formData.price);
-      formDataToSend.append('stock', formData.stock);
-      formDataToSend.append('category', formData.category);
-      formDataToSend.append('specifications', formData.specifications);
-      images.forEach((image) => {
-        formDataToSend.append('images', image);
-      });
-
-    //   console.log("our data: " ,formData)
-
-      try {
-        const response = await dispatch(updateProduct([productId, formData]));
-        console.log("actual data: ", response);
-        if (response?.payload?.success) {
-            const updatedProduct = response.payload.product;
-            setFormData(updatedProduct); // Update form data with the server response
-            setImages([]); // Clear the images state if needed
-            toast.success('Product updated successfully!');
-            router.push('/product-list');
+    if (!validate()) return;
+    
+    
+    const response = dispatch(updateProduct({ id: productId, formData: formData }))
+      .unwrap()
+      .then((result) => {
+        if (result.success) {
+          toast.success("Product updated successfully");
+          router.push("/product-list");
         } else {
-          toast.error(response?.payload?.message || 'Failed to update product.');
+          toast.error("Failed to update product");
         }
-      } catch (error) {
-        toast.error('An error occurred while updating the product.');
-      }
-    } else {
-      toast.error('Please correct the errors in the form.');
-    }
+      })
+      .catch(() => toast.error("Failed to update product"));
+      console.log("filteredProduct: 01 ", formData)
   };
 
-//   get product 
+  //   get product 
 
-  const { products, error } = useSelector((state: RootState) => state.auth);
-  
-    // console.log(products)
-  
-    useEffect(() => {
-      dispatch(getAllProduct());
-    }, [dispatch]);
+  const { categories, loading, products } = useSelector((state: any) => state.auth);
 
-console.log("filteredProduct: 01 ", formData)
+  // console.log(products)
 
-    useEffect(() => {
-        // Assuming you have the productId
-        const product = products.find((product: any) => product._id === productId);
-    
-        if (product) {
-          setFormData(product);
-        } else {
-          console.error(`Product with ID ${productId} not found.`);
-        }
-      }, [products]);
+  useEffect(() => {
+    dispatch(getAllProduct());
+  }, [dispatch]);
 
-  const { categories, loading } = useSelector((state: any) => state.auth);
+  // console.log("filteredProduct: 01 ", formData)
 
-console.log("formData: ", formData)
+  useEffect(() => {
+    if (productId && products) {
+      const product = products.find((prod: any) => prod._id === productId);
+      if (product) {
+        setFormData({
+          ...product,
+          images: product.images.map((img: any) => img.secure_url),
+        });
+      } else {
+        console.error(`Product with ID ${productId} not found.`);
+      }
+    }
+  }, [products, productId]);
 
-const handleCategorySelect = (categoryId: string) => {
-    console.log(categoryId)
-    const selectedCategory = categories.find((category) => category.id === categoryId);
-    console.log("selectedCategory: ", selectedCategory)
-    setFormData({
-        ...formData,
-        category: categoryId,
-    });
+
+  // console.log("formData: ", formData)
+
+  const handleCategorySelect = (categoryId: string) => {
+    setFormData({ ...formData, category: categoryId });
     setIsOpen(false);
-};
+  };
 
-useEffect(() => {
+  useEffect(() => {
     dispatch(getAllCategories());
   }, [dispatch]);
-  
-    useEffect(() => {
-      dispatch(getAllCategories());
-    }, [dispatch]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -203,15 +186,18 @@ useEffect(() => {
     };
   }, []);
 
-  useEffect(() => {
-    setFormData((prev) => ({ ...prev, id: productId || "" }));
-  }, [productId]);
 
   return (
     <DashboardLayout>
       <div className="p-6 bg-white rounded-lg shadow-lg" ref={dropdownRef}>
-        <h2 className="text-2xl font-bold mb-4 text-[#0A8E8A]">Update Product</h2>
+        <h2 className="text-2xl font-bold mb-4 text-green-700">Update Product</h2>
         <form onSubmit={handleSubmit}>
+
+          <div className='flex items-center gap-[1rem] mb-[1rem]'>
+            {formData?.images?.map((image, index) => (
+              <Image key={index} width={100} height={100} src={image?.secure_url} alt='image' className='rounded-xl' />
+            ))}
+          </div>
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div>
               <input
@@ -224,6 +210,7 @@ useEffect(() => {
               />
               {errors.name && <p className="text-red-500 text-sm">{errors?.name}</p>}
             </div>
+
             <div>
               <input
                 type="text"
@@ -259,59 +246,57 @@ useEffect(() => {
             </div>
           </div>
 
-          
-
           <div className="grid grid-cols-2 gap-4 mb-4">
-                      <div className="relative">
-                      <div
-              className="p-2 border rounded w-full flex justify-between items-center cursor-pointer bg-white"
-              onClick={() => setIsOpen(!isOpen)}
-            >
-              <span className={`${!formData?.category ? 'text-gray-400' : ''}`}>
-                {formData?.category ? 
-                  categories.find((cat: any) => cat._id === formData?.category)?.name || formData.category?.name : 
-                  'Select a category'}
-              </span>
-              {isOpen ? (
-                <ChevronUp className="h-4 w-4 text-gray-500" />
-              ) : (
-                <ChevronDown className="h-4 w-4 text-gray-500" />
+            <div className="relative">
+              <div
+                className="p-2 border rounded w-full flex justify-between items-center cursor-pointer bg-white"
+                onClick={() => setIsOpen(!isOpen)}
+              >
+                <span className={`${!formData?.category ? 'text-gray-400' : ''}`}>
+                  {formData?.category ?
+                    categories.find((cat: any) => cat._id === formData?.category)?.name || formData.category?.name :
+                    'Select a category'}
+                </span>
+                {isOpen ? (
+                  <ChevronUp className="h-4 w-4 text-gray-500" />
+                ) : (
+                  <ChevronDown className="h-4 w-4 text-gray-500" />
+                )}
+              </div>
+
+              {isOpen && (
+                <div className="absolute z-10 w-full mt-1 bg-white border rounded-md shadow-lg">
+                  <ul className="py-1 max-h-60 overflow-auto">
+                    {loading ? (
+                      <li className="px-4 py-2 text-gray-500">Loading categories...</li>
+                    ) : categories && categories.length > 0 ? (
+                      categories.map((category: any) => (
+                        <li
+                          key={category?._id}
+                          className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                          onClick={() => handleCategorySelect(category?._id)}
+                        >
+                          {category?.name}
+                        </li>
+                      ))
+                    ) : (
+                      <li className="px-4 py-2 text-gray-500">No categories available</li>
+                    )}
+                  </ul>
+                </div>
               )}
             </div>
-                        
-                        {isOpen && (
-              <div className="absolute z-10 w-full mt-1 bg-white border rounded-md shadow-lg">
-                <ul className="py-1 max-h-60 overflow-auto">
-                  {loading ? (
-                    <li className="px-4 py-2 text-gray-500">Loading categories...</li>
-                  ) : categories && categories.length > 0 ? (
-                    categories.map((category: any) => (
-                      <li
-                        key={category?._id}
-                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                        onClick={() => handleCategorySelect(category?._id)}
-                      >
-                        {category?.name}
-                      </li>
-                    ))
-                  ) : (
-                    <li className="px-4 py-2 text-gray-500">No categories available</li>
-                  )}
-                </ul>
-              </div>
-            )}
-                      </div>
-                      <div>
-                        <input
-                          type="text"
-                          name="subCategory"
-                          placeholder="Sub Category"
-                          className="p-2 border rounded w-full"
-                          value={formData?.subCategory}
-                          onChange={handleChange}
-                        />
-                      </div>
-                    </div>
+            <div>
+              <input
+                type="text"
+                name="subCategory"
+                placeholder="Sub Category"
+                className="p-2 border rounded w-full"
+                value={formData?.subCategory}
+                onChange={handleChange}
+              />
+            </div>
+          </div>
 
           <div className="mb-4">
             <input
@@ -337,15 +322,15 @@ useEffect(() => {
                 disabled={images?.length >= 4}
               />
               <p className="text-sm text-gray-500 mt-1">
-                {images.length >= 4 
+                {images.length >= 4
                   ? "Maximum number of images reached"
                   : `You can add ${4 - images?.length} more image${4 - images?.length === 1 ? '' : 's'}`
                 }
               </p>
             </div>
-            
+
             {errors?.images && <p className="text-red-500 text-sm mt-2">{errors?.images}</p>}
-            
+
             {/* Display selected images */}
             {images.length > 0 && (
               <div className="mt-4">
@@ -354,7 +339,7 @@ useEffect(() => {
                 </p>
                 <div className="space-y-2 bg-gray-50 p-3 rounded-lg">
                   {images.map((image, index) => (
-                    <div 
+                    <div
                       key={index}
                       className="flex items-center justify-between bg-white p-3 rounded-md shadow-sm"
                     >
@@ -380,11 +365,11 @@ useEffect(() => {
             )}
           </div>
 
-          <button 
-            type="submit" 
-            className="bg-[#0A8E8A] text-white p-2 rounded hover:bg-[#097a77] transition-colors"
+          <button
+            type="submit"
+            className="bg-green-700 text-white p-2 rounded hover:bg-green-600 transition-colors"
           >
-            Add Product
+            Update Product
           </button>
         </form>
       </div>
