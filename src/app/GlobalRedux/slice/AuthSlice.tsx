@@ -80,9 +80,9 @@ export const AddProducts = createAsyncThunk(
       // console.log("product data:", data);
       const res = axiosInstance.post("admin/addProduct", data);
       // console.log("response:",res)
-      if (res?.data?.success) {
-        toast.success("Product added successfully");
-      }
+      // if (res?.data?.success) {
+      //   toast.success("Product added successfully");
+      // }
       return res;
     } catch (error: any) {
       toast.error("Failed to add product");
