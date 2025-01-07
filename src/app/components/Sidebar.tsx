@@ -3,9 +3,6 @@ import { useRouter } from 'next/navigation'
 
 import React from 'react';
 
-
-
-
 const Sidebar: React.FC = () => {
   const router = useRouter()
   return (
@@ -28,7 +25,14 @@ const Sidebar: React.FC = () => {
               All User
             </button>
           </li>
-      
+          <li>
+            <button
+              onClick={() => router.push('/all-orders') }
+              className="text-white hover:text-gray-300 transition-colors"
+            >
+              All Orders
+            </button>
+          </li>
           <li>
             <button
               onClick={() => router.push('/Add-Product') }

@@ -10,6 +10,7 @@ interface UserState {
   error: string | null;
   products: any;
   users: any;
+  orders: any;
 }
 
 interface RegisterData {
@@ -38,7 +39,7 @@ const initialState: UserState = {
   error: null,
   products: [],
   users: [],
-  
+  orders: []
 };
 
 export const createDoctor = createAsyncThunk(
@@ -216,7 +217,7 @@ export const fetchAllUsers = createAsyncThunk(
   "admin/fetchAllUsers",
   async () => {
     try {
-      const res = axiosInstance.get("admin/allUsers", {
+      const res = axiosInstance.get("admin/allUsers?page=2", {
         withCredentials: true,
       });
 
@@ -237,6 +238,33 @@ export const fetchAllUsers = createAsyncThunk(
     }
   }
 );
+
+export const fetchAllOrders = createAsyncThunk(
+  "admin/fetchAllOrders",
+  async (currentPage) => {
+    try {
+      const res = axiosInstance.get(`admin/allOrders?page=${currentPage}`, {
+        withCredentials: true,
+      });
+
+      toast.promise(res, {
+        loading: "Fetching users ",
+        success: (data) => data?.data?.message,
+        error: "Failed to find users ",
+      });
+
+      // Extract the token from the response
+      const response = await res;
+
+      return response.data;
+    } catch (error: any) {
+      throw error;
+    } finally {
+      console.log("finally");
+    }
+  }
+);
+
 
 const authSlice = createSlice({
   name: "auth",
@@ -309,6 +337,10 @@ const authSlice = createSlice({
       .addCase(fetchAllUsers.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Failed to fetch users';
+      })
+      .addCase(fetchAllOrders.fulfilled, (state, action) => {
+        state.orders = action.payload.data;
+        state.error = null;
       })
   },
 });

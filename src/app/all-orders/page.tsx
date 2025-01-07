@@ -1,11 +1,12 @@
 import React from 'react'
 import AllOrders from '../components/AllOrders'
+import DashboardLayout from '../dashboard/page'
 
 const AllOrdersContainer = () => {
   return (
-    <div>
+    <DashboardLayout>
       <AllOrders />
-    </div>
+    </DashboardLayout>
   )
 }
 

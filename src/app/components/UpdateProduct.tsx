@@ -51,6 +51,7 @@ export default function UpdateProduct() {
     images: []
   });
 
+  console.log("formData image: ", formData.images)
   useEffect(() => {
     setFormData((prev) => ({ ...prev, id: productId || "" }));
   }, [productId]);
@@ -79,6 +80,8 @@ export default function UpdateProduct() {
       toast.error("You can only upload up to 4 images");
       return;
     }
+
+    // console.log("filesArray: ", filesArray)
 
     // Add the selected images to the state
     setImages((prev) => [...prev, ...filesArray]);
@@ -133,7 +136,7 @@ export default function UpdateProduct() {
         }
       })
       .catch(() => toast.error("Failed to update product"));
-      console.log("filteredProduct: 01 ", formData)
+      console.log("filteredProduct: 01 ", response)
   };
 
   //   get product 
@@ -186,6 +189,7 @@ export default function UpdateProduct() {
     };
   }, []);
 
+  // console.log("formData: ", formData)
 
   return (
     <DashboardLayout>
@@ -195,7 +199,7 @@ export default function UpdateProduct() {
 
           <div className='flex items-center gap-[1rem] mb-[1rem]'>
             {formData?.images?.map((image, index) => (
-              <Image key={index} width={100} height={100} src={image?.secure_url} alt='image' className='rounded-xl' />
+              <Image key={index} width={100} height={100} src={image} alt='image' className='rounded-xl' />
             ))}
           </div>
           <div className="grid grid-cols-2 gap-4 mb-4">
