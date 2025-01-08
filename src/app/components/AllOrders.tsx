@@ -1,9 +1,10 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Search, Eye, Edit2, Trash2 } from 'lucide-react';
-import { fetchAllOrders } from '../GlobalRedux/slice/AuthSlice';
+import { Search, Eye, Edit2, Trash2, X } from 'lucide-react';
+import { fetchAllOrders, getAddressById } from '../GlobalRedux/slice/AuthSlice';
 import { useDispatch, useSelector } from 'react-redux';
+import Link from 'next/link';
 
 interface Order {
   _id: string;
@@ -30,13 +31,18 @@ interface OrdersState {
 interface RootState {
   auth: {
     orders: OrdersState | null;
+    address: any;
+    loading: boolean;
   }
 }
 
 const OrdersPage = () => {
   const dispatch = useDispatch();
-  const { orders } = useSelector((state: RootState) => state.auth);
+  const { orders, address, loading } = useSelector((state: RootState) => state.auth);
   const [currentPage, setCurrentPage] = useState(1);
+  const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
+
+  console.log("orders: ", orders);
 
   useEffect(() => {
     dispatch(fetchAllOrders(currentPage));
@@ -48,6 +54,17 @@ const OrdersPage = () => {
     totalItems: 0,
     itemsPerPage: 10
   };
+
+  // const handleViewAddress = async (addressId: string) => {
+  //   if (!addressId) return;
+  //   try {
+  //     const addressViaId = await dispatch(getAddressById(addressId));
+  //     console.log("Fetched Address:", addressViaId);
+  //     setIsAddressModalOpen(false);
+  //   } catch (error) {
+  //     console.error("Error fetching address:", error);
+  //   }
+  // };
 
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= pagination.totalPages) {
@@ -83,8 +100,6 @@ const OrdersPage = () => {
     return buttons;
   };
 
-  console.log("orders", orders);
-
   return (
     <div className="p-6">
       <div className="flex justify-between mb-6">
@@ -105,42 +120,50 @@ const OrdersPage = () => {
         <table className="w-full">
           <thead>
             <tr className="border-b">
-              <th className="text-left py-4">Address</th>
               <th className="text-left py-4">Order ID</th>
               <th className="text-left py-4">Tax+Total</th>
               <th className="text-left py-4">Payment Method</th>
               <th className="text-left py-4">Shipping Charges</th>
+              <th className="text-left py-4">Phone</th>
               <th className="text-left py-4">Action</th>
             </tr>
           </thead>
           <tbody>
             {orders?.orders?.map((order) => (
-              <tr key={order._id} className="border-b">
+              <tr key={order?._id} className="border-b">
                 <td className="py-4">
                   <div className="flex items-center gap-3">
-                    <span>{order.address}</span>
-                    <span>{order.customer}</span>
+                <td className="py-4">{order?._id}</td>
                   </div>
                 </td>
-                <td className="py-4">{order._id}</td>
-                <td className="py-4">{(order.tax + order.total).toFixed(2)}</td>
-                <td className="py-4">{order.paymentMethod}</td>
-                <td className="py-4">{order.shippingCharges}</td>
+                <td className="py-4">₹{(order?.tax + order?.total).toFixed(2)}</td>
+                <td className="py-4">{order?.paymentMethod}</td>
+                <td className="py-4">{order?.shippingCharges}</td>
+                <td className="py-4">{address?.mobileNumber}</td>
                 <td className="py-4">
                   <div className="flex gap-2">
-                    <button className="p-1 text-gray-500 hover:text-gray-700">
+                    <Link href={
+                      {
+                        pathname: `/order-details/${order?._id}`,
+                        query: {
+                          addressId: order?.address,
+                        },
+                      }
+                    }>
+                    <button 
+                      className="p-1 text-gray-500 hover:text-gray-700"
+                    >
                       <Eye className="h-5 w-5" />
                     </button>
+                    </Link>
                     <button className="p-1 text-gray-500 hover:text-gray-700">
                       <Edit2 className="h-5 w-5" />
-                    </button>
-                    <button className="p-1 text-gray-500 hover:text-gray-700">
-                      <Trash2 className="h-5 w-5" />
                     </button>
                   </div>
                 </td>
               </tr>
-            ))}
+              )
+)}
           </tbody>
         </table>
       </div>

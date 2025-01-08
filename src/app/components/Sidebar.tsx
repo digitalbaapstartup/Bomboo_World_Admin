@@ -19,7 +19,7 @@ const Sidebar: React.FC = () => {
           </li>
           <li>
             <button
-              onClick={() => router.push('/users-enquiry') }
+              onClick={() => router.push('/all-users') }
               className="text-white hover:text-gray-300 transition-colors"
             >
               All User

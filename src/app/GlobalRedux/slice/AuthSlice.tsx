@@ -11,6 +11,7 @@ interface UserState {
   products: any;
   users: any;
   orders: any;
+  address: any;
 }
 
 interface RegisterData {
@@ -39,7 +40,8 @@ const initialState: UserState = {
   error: null,
   products: [],
   users: [],
-  orders: []
+  orders: [],
+  address: null,
 };
 
 export const createDoctor = createAsyncThunk(
@@ -215,16 +217,10 @@ export const allPatientEnquiry = createAsyncThunk(
 
 export const fetchAllUsers = createAsyncThunk(
   "admin/fetchAllUsers",
-  async () => {
+  async (currentPage) => {
     try {
-      const res = axiosInstance.get("admin/allUsers?page=2", {
+      const res = axiosInstance.get(`admin/allUsers?page=${currentPage}`, {
         withCredentials: true,
-      });
-
-      toast.promise(res, {
-        loading: "Fetching users ",
-        success: (data) => data?.data?.message,
-        error: "Failed to find users ",
       });
 
       // Extract the token from the response
@@ -247,12 +243,6 @@ export const fetchAllOrders = createAsyncThunk(
         withCredentials: true,
       });
 
-      toast.promise(res, {
-        loading: "Fetching users ",
-        success: (data) => data?.data?.message,
-        error: "Failed to find users ",
-      });
-
       // Extract the token from the response
       const response = await res;
 
@@ -261,6 +251,22 @@ export const fetchAllOrders = createAsyncThunk(
       throw error;
     } finally {
       console.log("finally");
+    }
+  }
+);
+
+//fetchOrderByid
+
+export const getAddressById = createAsyncThunk(
+  "admin/getAddressById",
+  async (addressId: string, { rejectWithValue }) => {
+    try {
+      const res = await axiosInstance.get(`admin/getAddressById/${addressId}`);
+      // console.log("res: ", res);
+      return res?.data;
+    } catch (error: any) {
+      // toast.error("Failed to fetch address");
+      return rejectWithValue(error.response?.data || "An error occurred");
     }
   }
 );
@@ -340,6 +346,11 @@ const authSlice = createSlice({
       })
       .addCase(fetchAllOrders.fulfilled, (state, action) => {
         state.orders = action.payload.data;
+        state.error = null;
+      })
+      .addCase(getAddressById.fulfilled, (state, action: PayloadAction<any>) => {
+        state.loading = false;
+        state.address = action.payload.data;
         state.error = null;
       })
   },
