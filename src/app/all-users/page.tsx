@@ -66,7 +66,8 @@ const UsersList = () => {
                 <th className="text-left py-4 font-medium">User</th>
                 <th className="text-left py-4 font-medium">Phone</th>
                 <th className="text-left py-4 font-medium">Email</th>
-                <th className="text-right py-4 font-medium">Action</th>
+                <th className="text-left py-4 font-medium">Create Date</th>
+                <th className="text-left py-4 font-medium">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -83,19 +84,15 @@ const UsersList = () => {
                   </td>
                   <td className="py-4">{user?.phone}</td>
                   <td className="py-4">{user?.email}</td>
-                  <td className="py-4">
-                    <div className="flex justify-end gap-2">
-                      <button className="p-1 text-blue-500 hover:bg-blue-50 rounded">
-                        <Eye className="w-5 h-5" />
-                      </button>
-                      <button className="p-1 text-blue-500 hover:bg-blue-50 rounded">
-                        <Pencil className="w-5 h-5" />
-                      </button>
-                      <button className="p-1 text-red-500 hover:bg-red-50 rounded">
-                        <Trash2 className="w-5 h-5" />
-                      </button>
-                    </div>
+                  <td className="py-4">{user?.createdAt
+                      ? new Date(user?.createdAt).toLocaleDateString('en-GB', {
+                        day: '2-digit',
+                        month: 'short',
+                        year: 'numeric',
+                      })
+                      : 'N/A'}
                   </td>
+                  <td className="py-4 flex gap-2"><button className="bg-green-100 hover:bg-green-300 p-2 rounded-md">View Details</button><button className="bg-red-300 hover:bg-red-500 p-2 rounded-md">Delete</button></td>
                 </tr>
               ))
             ): (

@@ -94,6 +94,26 @@ const OrderDetailsPage = () => {
               ))}
             </div>
 
+          {/* User information */}
+          {/* <div className="bg-white rounded-lg shadow-sm p-4">
+            <h3 className="font-medium mb-4">User Information</h3>
+            <div className="space-y-3">
+              
+              <div className="grid grid-cols-2 gap-2">
+                <span className="text-gray-600">Sub total</span>
+                <span className="text-orange-500 font-medium">₹{orderDetails[0]?.subtotal?.toFixed(2)}</span>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <span className="text-gray-600">Tax</span>
+                <span className="text-orange-500 font-medium">₹{orderDetails[0]?.tax?.toFixed(2)}</span>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <span className="text-gray-600">Total</span>
+                <span className="text-orange-500 font-medium">₹{orderDetails[0]?.total?.toFixed(2)}</span>
+              </div>
+            </div>
+          </div> */}
+
           </div>
         </div>
 
@@ -138,6 +158,16 @@ const OrderDetailsPage = () => {
           <div className="bg-white rounded-lg shadow-sm p-4">
             <h3 className="font-medium mb-4">Shipping Address</h3>
             <div className="space-y-3">
+            <div className="grid grid-cols-2 gap-2">
+                <span className="text-gray-600">User Name</span>
+                <span className="font-medium">{address?.name}</span>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <span className="text-gray-600">Phone</span>
+                <span className="font-medium">
+                  {address?.mobileNumber}
+                  </span>
+              </div>
             <div className="grid grid-cols-2 gap-2">
                 <span className="text-gray-600">Landmark</span>
                 <span className="font-medium">{address?.landmark}</span>

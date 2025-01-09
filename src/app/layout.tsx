@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./GlobalRedux/provider";
-import Sidebar from "./components/Sidebar";
+import Sidebar from "./components/Sidebar2";
 
 const inter = Inter({ subsets: ["latin"] });
 
