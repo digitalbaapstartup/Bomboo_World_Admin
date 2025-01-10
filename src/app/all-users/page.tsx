@@ -39,7 +39,7 @@ const UsersList = () => {
 
   return (
     <DashboardLayout>
-      <div className="p-6 bg-white">
+      <div className="p-6">
         {/* Header with Search and Add New */}
         <div className="flex justify-between items-center mb-6">
           <div className="relative">

@@ -50,7 +50,7 @@ const OrderTracking = () => {
   ];
 
   return (
-    <div className="max-w-[80%] mx-auto p-6 bg-white rounded-lg shadow mt-[3rem] border">
+    <div className="max-w-[80%] mx-auto p-6 rounded-lg shadow mt-[3rem] border">
       <Link href="/all-orders">
         <h1 className='font-bold text-4xl mb-2 p-1'>{"<-"}</h1>
       </Link>

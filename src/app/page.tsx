@@ -7,9 +7,6 @@ import UploadProfile from './components/UploadProfile';
 
 const MainPage = () => {
 
-
-  
-
   return (
     <DoctorList/>
   );

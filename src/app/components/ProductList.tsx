@@ -47,11 +47,12 @@ export default function ProductList() {
 
   return (
     <DashboardLayout>
-      <div className="p-6 bg-white rounded-lg shadow-lg">
+      <div className="p-6 rounded-lg">
         <h2 className="text-2xl font-bold mb-4 text-green-700">Product List</h2>
-        <table className="min-w-full bg-white border border-gray-200 mb-4">
+        <div className="overflow-x-auto rounded-xl border">
+        <table className="bg-white w-full mb-4">
           <thead>
-            <tr>
+            <tr className="bg-[#f5f9ff]">
               <th className="py-2 px-4 border-b">ID</th>
               <th className="py-2 px-4 border-b">Images</th>
               <th className="py-2 px-4 border-b">Name</th>
@@ -81,14 +82,15 @@ export default function ProductList() {
                 <td className="py-2 px-4 border-b">{product.price}</td>
                 <td className="py-2 px-4 border-b">
                 <Link href={`/update-product?id=${product._id}`}>
-                  <button className="hover:text-teal-700 mr-2">Update</button>
+                  <button className="hover:text-teal-700 mr-2 px-2 py-1 rounded-md bg-green-200 hover:bg-green-300 text-black">Update</button>
                   </Link>
-                  <button className="text-red-500 hover:text-red-700" onClick={() => handleDelete(product._id)}>Delete</button>
+                  <button className="bg-red-300 hover:bg-red-500 px-2 py-1 rounded-md" onClick={() => handleDelete(product._id)}>Delete</button>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
+        </div>
       </div>
     </DashboardLayout>
   );

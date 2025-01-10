@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
-import { ChevronDown, LayoutDashboard, ShoppingCart, Layers, Box, FileText, User, Users, Image, BarChart3, Menu } from 'lucide-react'
+import { ChevronDown, LayoutDashboard, ShoppingCart, Layers, Box, FileText, User, Users, Image, BarChart3, Menu, ListTree, PlusCircle, ShoppingBag, ClipboardList, Ticket, Tags, PlusSquare } from 'lucide-react'
 
 interface NavItem {
   title: string
@@ -27,39 +27,47 @@ const navItems: NavItem[] = [
     title: 'Category',
     icon: <Layers className="w-5 h-5" />,
     children: [
-      { title: 'All Categories', href: '/all-categories' },
-      { title: 'Add Category', href: '#' },
+      { title: 'All Categories', href: '/all-categories', icon: <ListTree className="w-4 h-4" /> },
+      { title: 'Add Category', href: '#', icon: <PlusCircle className="w-4 h-4" /> },
     ]
   },
   {
     title: 'Product',
     icon: <Box className="w-5 h-5" />,
     children: [
-      { title: 'Add Product', href: '/Add-Product' },
-      { title: 'Product List', href: '/product-list' },
+      { title: 'Add Product', href: '/Add-Product', icon: <PlusCircle className="w-4 h-4" /> },
+      { title: 'Product List', href: '/product-list', icon: <ShoppingBag className="w-4 h-4" /> },
     ]
   },
   {
     title: 'Order',
     icon: <FileText className="w-5 h-5" />,
     children: [
-      { title: 'Order List', href: '/all-orders' },
+      { title: 'Order List', href: '/all-orders', icon: <ClipboardList className="w-4 h-4" /> },
     ]
   },
   {
     title: 'User',
     icon: <User className="w-5 h-5" />,
     children: [
-      { title: 'All Users', href: '/all-users' },
+      { title: 'All Users', href: '/all-users', icon: <Users className="w-4 h-4" /> },
     ]
   },
   {
     title: 'Homepage Setting',
     icon: <User className="w-5 h-5" />,
     children: [
-      { title: 'Header', href: '#' },
-      { title: 'Hero section', href: '#' },
-      { title: 'Add Logo', href: '#' },
+      { title: 'Header', href: '#', icon: <Box className="w-4 h-4" /> },
+      { title: 'Hero section', href: '#', icon: <Image className="w-4 h-4" /> },
+      { title: 'Add Logo', href: '#', icon: <Image className="w-4 h-4" /> },
+    ]
+  },
+  {
+    title: 'Coupons',
+    icon: <Ticket className="w-5 h-5" />,
+    children: [
+      { title: 'Add Coupons', href: '/add-coupon', icon: <PlusSquare className="w-4 h-4" /> },
+      { title: 'All Coupons', href: '/all-coupons', icon: <Tags className="w-4 h-4" /> },
     ]
   },
   {
@@ -92,7 +100,7 @@ export default function Sidebar() {
 
       <aside className={cn(
         "fixed top-0 left-0 z-40 h-screen transition-transform bg-background border-r",
-        "w-64 lg:translate-x-0",
+        "w-64 lg:translate-x-0 bg-[#201e1e]",
         isSidebarOpen ? "translate-x-0" : "-translate-x-full"
       )}>
         <div className="flex items-center gap-2 p-4 border-b">
@@ -138,13 +146,14 @@ export default function Sidebar() {
                       )}
                     >
                       <div className="pt-1 pl-10">
-                        {item.children.map((child) => (
+                        {item?.children?.map((child) => (
                           <Link
                             key={child.href}
                             href={child.href}
                             className="flex items-center gap-2 px-3 py-2 text-sm rounded-md text-muted-foreground hover:text-foreground hover:bg-accent"
                           >
-                            {child.title}
+                            {child?.icon}
+                            {child?.title}
                           </Link>
                         ))}
                       </div>

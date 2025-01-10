@@ -20,7 +20,7 @@ const AllCategories = () => {
   return (
     <DashboardLayout>
 
-    <div className="p-6 bg-white rounded-lg shadow-lg">
+    <div className="p-6 rounded-lg">
         <h2 className="text-2xl font-bold mb-4 text-green-700">All Categories</h2>
         <table className="min-w-full bg-white border border-gray-200 mb-4">
           <thead>

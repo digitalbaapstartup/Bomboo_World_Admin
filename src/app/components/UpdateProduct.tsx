@@ -193,7 +193,7 @@ export default function UpdateProduct() {
 
   return (
     <DashboardLayout>
-      <div className="p-6 bg-white rounded-lg shadow-lg" ref={dropdownRef}>
+      <div className="p-6 rounded-lg" ref={dropdownRef}>
         <h2 className="text-2xl font-bold mb-4 text-green-700">Update Product</h2>
         <form onSubmit={handleSubmit}>
 

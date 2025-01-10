@@ -180,7 +180,7 @@ export default function AddProduct() {
 
   return (
     <DashboardLayout>
-      <div className="p-6 bg-white rounded-lg shadow-lg" ref={dropdownRef}>
+      <div className="p-6 rounded-lg" ref={dropdownRef}>
         <h2 className="text-2xl font-bold mb-4 text-green-700">Add Product</h2>
         <form onSubmit={handleSubmit}>
           <div className="grid grid-cols-2 gap-4 mb-4">

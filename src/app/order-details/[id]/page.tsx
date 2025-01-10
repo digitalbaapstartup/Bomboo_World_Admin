@@ -51,7 +51,7 @@ const OrderDetailsPage = () => {
     }, [addressId, dispatch, id]);
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 md:p-6">
+    <div className="min-h-screen p-4 md:p-6">
       {/* Breadcrumb */}
       <Link href="/all-orders">
 <h1 className='font-bold text-4xl mb-2 p-1'>{"<-"}</h1>

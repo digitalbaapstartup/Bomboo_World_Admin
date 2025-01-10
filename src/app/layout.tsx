@@ -22,7 +22,7 @@ export default function RootLayout({
 
       <div className='flex '>
       
-      <main className="flex-1 p-6">
+      <main className="flex-1">
       <Providers >
 {children}
         </Providers>
