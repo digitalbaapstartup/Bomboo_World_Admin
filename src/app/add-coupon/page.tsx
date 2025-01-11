@@ -105,6 +105,7 @@ export default function AddCoupon() {
             status: false,
             usageLimit: '',
           });
+          router.push("/all-coupons")
         } else {
           toast.error(response.payload?.message || "Failed to add coupon");
         }

@@ -71,8 +71,6 @@ const AllCoupons = () => {
         if (response.payload && !response.payload.error) {
           toast.success("Coupon deleted successfully!");
           await dispatch(getAllCoupons()); // Refresh the coupon list
-        } else {
-          toast.error(response.payload?.message || "Failed to delete coupon");
         }
       } catch (error) {
         console.error("Coupon deletion error:", error);
