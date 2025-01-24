@@ -2,7 +2,7 @@
 
 import React, { useState, ChangeEvent, FormEvent, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from "react-redux";
-import { AddProducts, getAllCategories, getAllProduct, updateProduct } from '@/app/GlobalRedux/slice/AuthSlice';
+import { AddProducts, deleteProductImage, getAllCategories, getAllProduct, updateProduct } from '@/app/GlobalRedux/slice/AuthSlice';
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "react-hot-toast";
 import { AppDispatch } from "../GlobalRedux/store";
@@ -51,7 +51,7 @@ export default function UpdateProduct() {
     images: []
   });
 
-  console.log("formData image: ", formData.images)
+  console.log("formData image: ", formData)
   useEffect(() => {
     setFormData((prev) => ({ ...prev, id: productId || "" }));
   }, [productId]);
@@ -67,6 +67,12 @@ export default function UpdateProduct() {
   useEffect(() => {
     setFormData((prev) => ({ ...prev, id: productId || "" }));
   }, [productId]);
+
+  const handleProductRemoveImage =async (publicId)=>{
+    console.log(publicId,'publicId')
+const response =  await dispatch(deleteProductImage({id:productId,public_id:publicId}))
+console.log(response,'image remove')
+  }
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -114,7 +120,7 @@ export default function UpdateProduct() {
     if (!formData.price || Number(formData.price) <= 0) newErrors.price = "Price must be positive.";
     if (!formData.stock || Number(formData.stock) < 0) newErrors.stock = "Stock cannot be negative.";
     if (!formData.category) newErrors.category = "Category is required.";
-    if (images.length === 0) newErrors.images = "At least one image is required.";
+   
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -157,7 +163,7 @@ export default function UpdateProduct() {
       if (product) {
         setFormData({
           ...product,
-          images: product.images.map((img: any) => img.secure_url),
+          images: product.images.map((img: any) => img),
         });
       } else {
         console.error(`Product with ID ${productId} not found.`);
@@ -195,13 +201,21 @@ export default function UpdateProduct() {
     <DashboardLayout>
       <div className="p-6 rounded-lg" ref={dropdownRef}>
         <h2 className="text-2xl font-bold mb-4 text-green-700">Update Product</h2>
-        <form onSubmit={handleSubmit}>
 
-          <div className='flex items-center gap-[1rem] mb-[1rem]'>
-            {formData?.images?.map((image, index) => (
-              <Image key={index} width={100} height={100} src={image} alt='image' className='rounded-xl' />
-            ))}
-          </div>
+        <div className='flex items-center gap-[1rem] mb-[1rem]'>
+  {formData?.images?.map((image, index) => (
+    <div key={index} className='relative'>
+      <button 
+        className='absolute top-0 right-0 bg-red-500 text-white rounded-full p-[0.2rem] hover:bg-red-600 transition-colors'
+        onClick={() => handleProductRemoveImage(image?.public_id)}
+      >
+        &times;
+      </button>
+      <Image width={100} height={100} src={image?.secure_url} alt='image' className='rounded-xl' />
+    </div>
+  ))}
+</div>
+      <form onSubmit={handleSubmit}>
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div>
               <input
@@ -323,12 +337,12 @@ export default function UpdateProduct() {
                 multiple
                 accept="image/*"
                 max="4"
-                disabled={images?.length >= 4}
+                disabled={formData.images.length >= 4}
               />
               <p className="text-sm text-gray-500 mt-1">
                 {images.length >= 4
                   ? "Maximum number of images reached"
-                  : `You can add ${4 - images?.length} more image${4 - images?.length === 1 ? '' : 's'}`
+                  : `You can add ${4 - ( formData.images.length)} more image${4 - images?.length === 1 ? '' : 's'} | Delete Product Images from above`
                 }
               </p>
             </div>

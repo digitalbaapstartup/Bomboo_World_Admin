@@ -120,26 +120,7 @@ export const updateProduct = createAsyncThunk(
     const toastId = toast.loading("Updating product...");
     try {
 
-      // console.log("formData: ", formData)
-      // Validate image files (client-side validation)
-      const images = formData.getAll("images") as File[];
-      const totalSize = images.reduce((acc: number, img) => acc + img.size, 0);
-      const maxSize = 5 * 1024 * 1024; // 5MB total
-
-      if (totalSize > maxSize) {
-        toast.error("Total image size should be less than 5MB", { id: toastId });
-        return rejectWithValue("Image size too large");
-      }
-
-      // Validate file types
-      const validTypes = ["image/jpg", "image/jpeg", "image/png", "image/webp"];
-      const invalidFile = images.some((img) => !validTypes.includes(img.type));
-
-      if (invalidFile) {
-        toast.error("Only JPEG, JPG, PNG, and WebP images are allowed", { id: toastId });
-        return rejectWithValue("Invalid file type");
-      }
-
+      
       // Send request to update product
       const response = await axiosInstance.put(`admin/updateProduct/${id}`, formData, {
         headers: {
@@ -156,6 +137,25 @@ export const updateProduct = createAsyncThunk(
     }
   }
 );
+
+export const deleteProductImage = createAsyncThunk(
+  "admin/deleteProductImage",
+  async({id,public_id})=>{
+    try {
+      const response = await axiosInstance.delete(`admin/deleteProductImage/${id}/${public_id}`,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      console.log(response)
+            return response.data;
+    } catch (error: any) {
+      toast.error("Failed to delete product image");
+    }
+  }
+)
 
 export const getAllProduct = createAsyncThunk(
   "admin/getAllProduct",
@@ -189,31 +189,6 @@ export const AdminLogin = createAsyncThunk(
   }
 )
 
-export const allPatientEnquiry = createAsyncThunk(
-  "admin/allPatientEnquiry",
-  async () => {
-    try {
-      const res = axiosInstance.get("admin/getAllPatientEnquiry", {
-        withCredentials: true,
-      });
-
-      toast.promise(res, {
-        loading: "Fetching enquiries ",
-        success: (data) => data?.data?.message,
-        error: "Failed to find enquiry ",
-      });
-
-      // Extract the token from the response
-      const response = await res;
-
-      return response.data;
-    } catch (error: any) {
-      throw error;
-    } finally {
-      console.log("finally");
-    }
-  }
-);
 
 export const fetchAllUsers = createAsyncThunk(
   "admin/fetchAllUsers",
@@ -270,6 +245,8 @@ export const getAddressById = createAsyncThunk(
     }
   }
 );
+
+
 
 
 const authSlice = createSlice({
