@@ -25,10 +25,10 @@ const AdminSignin = () => {
     e.preventDefault();
     try {
       const res = await dispatch(AdminLogin({email: email, password:password}));
-      if(res?.success){
+      if(res?.payload?.success){
         router.push("/Add-Product")
       }
-      console.log(res);
+
     } catch (error) {
       console.error('Login error:', error);
     }
