@@ -232,9 +232,6 @@ const authSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(createDoctor.fulfilled, (state, action: PayloadAction<any>) => {
-        state.data = action?.payload?.data;
-      })
       .addCase(getAllCategories.pending, (state) => {
         state.loading = true;
         state.error = null;
