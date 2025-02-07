@@ -44,30 +44,7 @@ const initialState: UserState = {
   address: null,
 };
 
-export const createDoctor = createAsyncThunk(
-  "doctor/register",
-  async (data: RegisterData) => {
-    console.log(data);
-    try {
-      const res = axiosInstance.post("doctor/register", data, {
-        withCredentials: true,
-      });
-      toast.promise(res, {
-        loading: "Wait! creating doctor ",
-        success: (data) => data?.data?.message,
-        error: "Failed to create Doctors",
-      });
-      // Extract the token from the response
-      const response = await res;
 
-      return response.data;
-    } catch (error: any) {
-      throw error;
-    } finally {
-      console.log("finally");
-    }
-  }
-);
 
 export const getAllCategories = createAsyncThunk(
   "admin/getAllCategories",

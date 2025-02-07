@@ -25,7 +25,7 @@ const AdminSignin = () => {
     e.preventDefault();
     try {
       const res = await dispatch(AdminLogin({email: email, password:password}));
-      if(res){
+      if(res?.success){
         router.push("/Add-Product")
       }
       console.log(res);
