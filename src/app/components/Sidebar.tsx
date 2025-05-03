@@ -28,7 +28,7 @@ const navItems: NavItem[] = [
     icon: <Layers className="w-5 h-5" />,
     children: [
       { title: 'All Categories', href: '/all-categories', icon: <ListTree className="w-4 h-4" /> },
-      { title: 'Add Category', href: '#', icon: <PlusCircle className="w-4 h-4" /> },
+      { title: 'Add Category', href: '/add-categories', icon: <PlusCircle className="w-4 h-4" /> },
     ]
   },
   {
