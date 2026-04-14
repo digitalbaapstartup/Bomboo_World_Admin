@@ -24,7 +24,12 @@ const AdminSignin = () => {
   const role = "admin";
 
   const handleLogin = async (e: any) => {
+
     e.preventDefault();
+    if (!email || !password){
+      toast.error("Please fill in all fields");
+      return;
+    }
     try {
       const res = await dispatch(AdminLogin({email: email, password:password}));
       if(res?.payload?.success){
@@ -71,6 +76,7 @@ const AdminSignin = () => {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="Enter your Email"
+                      required
                       className="border-stroke dark:text-body-color-dark bg-[#f8f8f8] dark:shadow-two w-full rounded-sm border px-6 py-3 text-base text-body-color outline-none transition-all duration-300 focus:border-primary dark:border-transparent dark:focus:border-primary dark:focus:shadow-none"
                     />
                   </div>
@@ -87,6 +93,7 @@ const AdminSignin = () => {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="Enter your Password"
+                      required
                       className="border-stroke dark:text-body-color-dark dark:shadow-two w-full rounded-sm border bg-[#f8f8f8] px-6 py-3 text-base text-body-color outline-none transition-all duration-300 focus:border-primary dark:border-transparent dark:focus:border-primary dark:focus:shadow-none"
                     />
                     <button
