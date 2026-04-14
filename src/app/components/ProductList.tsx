@@ -20,7 +20,7 @@ export default function ProductList() {
   const dispatch = useDispatch<AppDispatch>();
   const { products, loading, error } = useSelector((state: RootState) => state.auth);
 
-  console.log(products)
+  
 
   useEffect(() => {
     dispatch(getAllProduct());
@@ -39,7 +39,7 @@ export default function ProductList() {
       .then((result) => {
         if (result.meta.requestStatus === "fulfilled") {
           dispatch(getAllProduct()); // Refresh the product list
-          toast.success("Product deleted successfully");
+
         }
       })
       .catch(() => toast.error("Failed to delete product"));

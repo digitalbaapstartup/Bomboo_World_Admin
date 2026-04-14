@@ -69,12 +69,10 @@ const AllCoupons = () => {
         const response = await dispatch(deleteCoupon(id));
         console.log("response: ", response)
         if (response.payload && !response.payload.error) {
-          toast.success("Coupon deleted successfully!");
           await dispatch(getAllCoupons()); // Refresh the coupon list
         }
       } catch (error) {
         console.error("Coupon deletion error:", error);
-        toast.error("An error occurred while deleting the coupon");
       }
     }
 

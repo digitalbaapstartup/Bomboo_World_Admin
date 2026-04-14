@@ -3,7 +3,11 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
+import { useDispatch } from 'react-redux'
 import { ChevronDown, LayoutDashboard, ShoppingCart, Layers, Box, FileText, User, Users, Image, BarChart3, Menu, ListTree, PlusCircle, ShoppingBag, ClipboardList, Ticket, Tags, PlusSquare } from 'lucide-react'
+import { Logout } from '../GlobalRedux/slice/AuthSlice'
+import { useRouter } from 'next/navigation'
+import AuthHelper from '@/app/Helpers/authHelper'
 
 interface NavItem {
   title: string
@@ -17,11 +21,6 @@ const navItems: NavItem[] = [
     title: 'Dashboard',
     icon: <LayoutDashboard className="w-5 h-5" />,
     href: '/dashboard'
-  },
-  {
-    title: 'Admin Login',
-    icon: "",
-    href: '/admin-login'
   },
   {
     title: 'Category',
@@ -89,6 +88,24 @@ export default function Sidebar() {
     )
   }
 
+  const dispatch = useDispatch();
+  const router = useRouter();
+
+  async function logOut(){
+    // Clear authentication state
+    AuthHelper.clearAuthState();
+    
+    // Remove token from local storage and cookies
+    localStorage.removeItem("token");
+    document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+
+    // Dispatch logout action to clear user data from redux store
+    const response = await dispatch(Logout());
+    
+    // Redirect to login page
+    router.push('/admin-login');
+  }
+
   return (
     <div className="relative">
       <button
@@ -104,8 +121,8 @@ export default function Sidebar() {
         isSidebarOpen ? "translate-x-0" : "-translate-x-full"
       )}>
         <div className="flex items-center gap-2 p-4 border-b">
-          <div className="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold">BW</span>
+          <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
+            <img src="/bomboo.svg" alt="Logo" className="object-contain" />
           </div>
           <span className="font-semibold text-xl">Bomboo World</span>
         </div>
@@ -171,6 +188,17 @@ export default function Sidebar() {
               </div>
             ))}
           </nav>
+
+
+          <div className="absolute bottom-4 w-full px-4">
+            <button
+              onClick={logOut}
+              className="bg-red-500 text-white w-full py-2 rounded-md hover:bg-red-700 transition-colors"
+            >
+              Logout
+            </button>
+          </div>
+
         </div>
       </aside>
     </div>

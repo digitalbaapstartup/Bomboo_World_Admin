@@ -149,14 +149,10 @@ export default function UpdateCategory() {
         const response = await dispatch(updateCategory({id, data: formDataToSend}));
         
         if (response.payload && !response.payload.error) {
-          toast.success("Category updated successfully!");
           router.push("/all-categories");
-        } else {
-          toast.error(response.payload?.message || "Failed to update category");
         }
       } catch (error) {
         console.error("Category update error:", error);
-        toast.error("An error occurred while updating the category");
       } finally {
         setIsSubmitting(false);
       }

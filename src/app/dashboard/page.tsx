@@ -8,6 +8,7 @@ const DashboardLayout = ({children}) => {
       <Sidebar />
       </div>
       <div className='w-[70%]'>
+       
       {children}
       </div>
     </div>

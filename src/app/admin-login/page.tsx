@@ -7,6 +7,8 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useDispatch } from "react-redux";
 import {AdminLogin} from '@/app/GlobalRedux/slice/AuthSlice'
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
+import AuthHelper from "@/app/Helpers/authHelper";
 
 const AdminSignin = () => {
   // console.log(signup);
@@ -26,10 +28,16 @@ const AdminSignin = () => {
     try {
       const res = await dispatch(AdminLogin({email: email, password:password}));
       if(res?.payload?.success){
-        router.push("/Add-Product")
+        // Save authentication state
+        AuthHelper.setAuthFromResponse(res?.payload?.data);
+        
+        // Redirect to dashboard
+        router.push("/dashboard")
       }
 
     } catch (error) {
+ 
+
       console.error('Login error:', error);
     }
     }
@@ -42,10 +50,10 @@ const AdminSignin = () => {
             <div className="w-full px-4">
               <div className="[box-shadow:0_0_0.5rem_0_lightgray] mx-auto max-w-[500px] rounded px-6 py-5 dark:bg-dark sm:p-[30px]">
                 <h3 className="mb-3 text-center text-2xl font-bold text-black sm:text-3xl">
-                  Create your account
+                  Welcome Back Admin ! 
                 </h3>
                 <p className="mb-11 text-center text-base font-medium text-body-color">
-                  It’s totally free and super easy
+                  Login to your account to manage the Bomboo World E-commerce platform.
                 </p>
 
                 <form>
@@ -101,18 +109,7 @@ const AdminSignin = () => {
                         />
                         
                       </div>
-                      <span>
-                        By creating account means you agree to the
-                        <a href="#0" className="text-primary hover:underline">
-                          {" "}
-                          Terms and Conditions{" "}
-                        </a>
-                        , and our
-                        <a href="#0" className="text-primary hover:underline">
-                          {" "}
-                          Privacy Policy{" "}
-                        </a>
-                      </span>
+                      Remember me 
                     </label>
                   </div>
                   <div className="mb-6">
@@ -122,25 +119,12 @@ const AdminSignin = () => {
                       }}
                       className="shadow-submit hover:bg-gray-100 dark:shadow-submit-dark flex w-full items-center justify-center rounded-sm bg-primary px-9 py-4 text-base font-medium border duration-300 hover:bg-primary/90"
                     >
-                      Sign Up
+                      Sign In
                     </button>
                   </div>
                 </form>
 
-                <div className="mb-8 flex items-center justify-center">
-                  <span className="hidden h-[1px] w-full max-w-[60px] bg-body-color/50 sm:block"></span>
-                  <p className="w-full px-5 text-center text-base font-medium text-body-color">
-                    Or, register with Google
-                  </p>
-                  <span className="hidden h-[1px] w-full max-w-[60px] bg-body-color/50 sm:block"></span>
-                </div>
-                {/* <SignInButton /> */}
-                <p className="text-center text-base font-medium text-body-color">
-                  Already using Startup?{" "}
-                  <Link href="/signin" className="text-primary hover:underline">
-                    Sign in
-                  </Link>
-                </p>
+
               </div>
             </div>
           </div>

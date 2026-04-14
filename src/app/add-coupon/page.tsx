@@ -94,7 +94,6 @@ export default function AddCoupon() {
         console.log("response: 01", response)
         
         if (response.payload && !response.payload.error) {
-          toast.success("Coupon added successfully!");
           setFormData({
             code: '',
             description: '',
@@ -106,12 +105,9 @@ export default function AddCoupon() {
             usageLimit: '',
           });
           router.push("/all-coupons")
-        } else {
-          toast.error(response.payload?.message || "Failed to add coupon");
         }
       } catch (error) {
         console.error("Coupon addition error:", error);
-        toast.error("An error occurred while adding the coupon");
       }
     } else {
       toast.error("Please correct the errors in the form.");

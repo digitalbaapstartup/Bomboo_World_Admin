@@ -135,13 +135,12 @@ console.log(response,'image remove')
       .unwrap()
       .then((result) => {
         if (result.success) {
-          toast.success("Product updated successfully");
           router.push("/product-list");
-        } else {
-          toast.error("Failed to update product");
         }
       })
-      .catch(() => toast.error("Failed to update product"));
+      .catch((error) => {
+        console.error("Failed to update product", error);
+      });
       console.log("filteredProduct: 01 ", response)
   };
 

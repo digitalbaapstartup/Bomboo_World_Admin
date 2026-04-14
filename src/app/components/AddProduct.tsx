@@ -30,6 +30,7 @@ interface Errors {
 export default function AddProduct() {
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [formData, setFormData] = useState<FormData>({
     name: '',
@@ -128,7 +129,6 @@ export default function AddProduct() {
         const response = await dispatch(AddProducts(formDataToSend));
         
         if (response.payload && !response.payload.error) {
-          toast.success("Product added successfully!");
           setFormData({
             name: '',
             description: '',
@@ -139,12 +139,10 @@ export default function AddProduct() {
           });
           setImages([]);
           router.push("/product-list");
-        } else {
-          toast.error(response.payload?.message || "Failed to add product");
         }
       } catch (error) {
+        setIsSubmitting(false);
         console.error("Product addition error:", error);
-        toast.error("An error occurred while adding the product");
       }
     } else {
       toast.error("Please correct the errors in the form.");
@@ -351,9 +349,10 @@ export default function AddProduct() {
 
           <button 
             type="submit" 
+            isDisabled={isSubmitting}
             className="bg-green-700 text-white p-2 rounded hover:bg-green-600 transition-colors"
           >
-            Add Product
+             {isSubmitting ? 'Adding Product...' : 'Add Product'}
           </button>
         </form>
       </div>

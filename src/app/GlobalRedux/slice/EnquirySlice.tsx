@@ -16,7 +16,7 @@ export const getAllEnquiries = createAsyncThunk(
       const res = await axiosInstance.get(`admin/allEnquiry`, {
         withCredentials: true,
       });
-      console.log("allEnquiries res: ", res?.data);
+   
       
       // Extract the token from the response
 

@@ -6,7 +6,7 @@ import { fetchAllCategories } from '../GlobalRedux/slice/ProductSlice';
 import DashboardLayout from '../dashboard/page';
 import { useRouter } from 'next/navigation';
 import { deleteCategory } from '../GlobalRedux/slice/AuthSlice';
-import toast from 'react-hot-toast';
+
 
 const AllCategories = () => {
     const router = useRouter();
@@ -26,7 +26,6 @@ const AllCategories = () => {
           dispatch(deleteCategory(categoryId))
               .unwrap()
               .then((result) => {
-                  toast.success("Category deleted successfully");
                   // Refresh the categories list
                   dispatch(fetchAllCategories());
               })

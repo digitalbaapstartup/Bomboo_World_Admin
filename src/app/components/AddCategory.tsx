@@ -133,7 +133,6 @@ export default function AddCategory() {
         const response = await dispatch(AddCategories(formDataToSend));
         
         if (response.payload && !response.payload.error) {
-          toast.success("Category added successfully!");
           // Reset form state
           setFormData({
             name: '',
@@ -148,12 +147,9 @@ export default function AddCategory() {
           
           // Navigate back to categories list
           router.push("/all-categories");
-        } else {
-          toast.error(response.payload?.message || "Failed to add category");
         }
       } catch (error) {
         console.error("Category addition error:", error);
-        toast.error("An error occurred while adding the category");
       } finally {
         setIsSubmitting(false);
       }
